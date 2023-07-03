@@ -34,3 +34,8 @@ variable "subnet_name" {
     default = "fran-cp2-tf-subnet1"      
 }
 
+variable "nic_name" {
+    type = string
+    description = "Nombre de la interfaz de red"
+    default = "vnic"
+}

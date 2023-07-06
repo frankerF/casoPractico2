@@ -1,0 +1,12 @@
+---
+- name: 'Modificar el /etc/motd'
+  hosts: all
+  remote_user: frankerFcp2
+  become: true
+  vars_files:
+    - vars/01_vars.yaml
+  tasks:
+    - name: 'Copiar plantilla de motd'
+      template:
+        src: templates/motd.j2
+        dest: /etc/motd

@@ -1,0 +1,3 @@
+zone: 'Europe/Madrid'
+rpms: 'podman'
+mensaje: 'Ejecutado la instalación de podman, motd y locale'

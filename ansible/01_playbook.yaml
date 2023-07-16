@@ -1,12 +1,43 @@
 ---
-- name: 'Modificar el /etc/motd'
-  hosts: all
-  remote_user: frankerFcp2
-  become: true
-  vars_files:
-    - vars/01_vars.yaml
+- name: 'Generar certificados'
+  hosts: localhost
+  vars_files: vars/01_vars.yaml
   tasks:
-    - name: 'Copiar plantilla de motd'
-      template:
-        src: templates/motd.j2
-        dest: /etc/motd
+
+    # htpasswd -cBb .cred test D3v0ps.2023
+    - name: 'credenciales para autentificación básica'
+      community.general.htpasswd:
+        path: files/.creds
+        name: "{{ username }}"
+        password: "{{ password }}"
+
+    #Certificado autofirmado
+    # openssl genrsa -out localhost.key 2048
+    - name: 'clave privada'
+      community.crypto.openssl_privatekey:
+        path: "files/{{ privatekey_name }}"
+        size: 2048
+    
+    # openssl req -key localhost.key -new -out localhost.csr -subj "/C=ES/ST=Murcia/L=Murcia/O=DevOps/OU=Prueba/CN=vm1"
+    - name: 'petición de firma'
+      community.crypto.openssl_csr:
+        path: "files/{{ csr_name }}"
+        privatekey_path: "files/{{ privatekey_name }}"
+        country_name: ES
+        state_or_province_name: Murcia
+        locality_name: Murcia
+        organization_name: DevOps
+        organizational_unit_name: Prueba
+        common_name: vm1
+
+    # openssl x509 -signkey localhost.key -in localhost.csr -req -days 365 -out localhost.crt
+    - name: 'crear certificado x509'
+      community.crypto.x509_certificate:
+        path: "files/{{ crt_name }}"
+        privatekey_path: "files/{{ privatekey_name }}"
+        csr_path: "files/{{ csr_name }}"
+        provider: selfsigned
+        entrust_not_after: +365d
+
+
+

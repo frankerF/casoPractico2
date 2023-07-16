@@ -1,0 +1,45 @@
+---
+- name: 'generar imagen contenedor etiquetar y subir'
+  hosts: localhost  
+  vars_files:
+    - vars/00_vars.yaml   
+  tasks:
+    
+    - name: 'generar imagen contenedor a partir del containerfile'
+      containers.podman.podman_image:
+        name: casopractico2
+        path: files
+
+    - name: 'etiquetar la imagen'
+      containers.podman.podman_tag:
+        image: localhost/casopractico2
+        target_names:
+          - "{{podmanweb.image}}"
+
+    # Login para subir imagen al repositorio
+    - name: 'Login to podman'
+      containers.podman.podman_login:
+        username: "{{ registryuser }}"
+        password: "{{ resgistrypassword }}"
+        registry: "{{ registry }}"          
+
+
+    - name: 'push de la imagen tageada'
+      containers.podman.podman_image:
+        name: webserver
+        tag: casopractico2
+        push: true
+        push_args:
+          dest: "{{ registry }}"
+
+    - name: 'eliminacion de las imágenes locales'
+      containers.podman.podman_image:
+        name: "{{podmanweb.image}}"          
+        state: absent
+
+    - name: 'eliminacion de las imágenes locales'
+      containers.podman.podman_image:
+        name: localhost/casopractico2
+        state: absent
+
+        

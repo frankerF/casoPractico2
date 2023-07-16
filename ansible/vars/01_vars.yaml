@@ -1,1 +1,5 @@
-mensaje: 'Buenos días. Bienvenido al sistema operativo en la nube de Azure'
+username: test
+password: 'D3v0ps.2023'
+privatekey_name: 'localhost.key'
+csr_name: 'localhost.csr'
+crt_name: 'localhost.crt'

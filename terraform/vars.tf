@@ -95,3 +95,10 @@ variable "espec_osvm" {
         version = "8.5.20220311"
     }
 }
+
+# Especificaciones del cluster de kubernetes
+variable "k8s_name" {
+    type = string
+    description = "Nombre del cluster de kubernetes"  
+    default = "fran-CP2-tf-k8s"
+}

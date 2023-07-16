@@ -7,16 +7,83 @@
     - vars/00_vars.yaml  
   tasks:
     # declara la zona horaria con el valor de la variable zone
-    - name: 'Tarea 1'
+    - name: 'Cambio zona horaria'
       timezone:
         name: "{{ zone }}"
-    # instala el paquete definido en rpms
-    - name: 'Tarea 2'
-      yum: 
-        name: "{{ rpms }}"
-        state: latest
     # Cambia el mensaje de bienvenida      
     - name: 'Copiar plantilla de motd'
       template:
         src: templates/motd.j2
-        dest: /etc/motd        
+        dest: /etc/motd           
+    # instala el paquete definido en rpms
+    - name: 'Instalar rpms'
+      yum: 
+        name: "{{ rpms }}"
+        state: latest
+
+    - name: 'Asegura que el demonio se instancia en el siguiente reinicio'
+      ansible.builtin.systemd:
+        name: "container-{{ podmanweb.containername }}.service"
+        state: stopped  
+
+    - name: 'para el contenedor si estuviera activo'
+      containers.podman.podman_container:
+        name: "{{ podmanweb.containername }}"
+        image: "{{ podmanweb.image }}"
+        state: absent
+
+    - name: 'eliminacion de las imágenes locales'
+      containers.podman.podman_image:
+        name: "{{podmanweb.image}}"          
+        state: absent
+
+    # Descargar imagen del repositorio
+    - name: 'Login to podman'
+      containers.podman.podman_login:
+        username: "{{ registryuser }}"
+        password: "{{ resgistrypassword }}"
+        registry: "{{ registry }}"
+
+
+    - name: 'Descargar imagen'
+      containers.podman.podman_image:
+        name: "{{ podmanweb.image }}"
+        force: true
+
+    - name: 'Crear el contenedor a partir de la imagen'
+      containers.podman.podman_container:
+        name: "{{ podmanweb.containername }}"
+        image: "{{ podmanweb.image }}"
+        state: present
+        ports: "8080:443"
+        generate_systemd:
+          path: /tmp/
+          restart_policy: always
+          time: 30
+          names: true
+
+    - name: 'Copia el container-web.service a systemd'
+      ansible.builtin.copy:
+        src: "/tmp/container-{{ podmanweb.containername }}.service"
+        dest: /etc/systemd/system/
+        remote_src: true
+
+    - name: 'Recarga los demonios'
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: 'Asegura que el demonio se instancia en el siguiente reinicio'
+      ansible.builtin.systemd:
+        name: "container-{{ podmanweb.containername }}.service"
+        state: started       
+
+    - name: 'Recoger ip interna'
+      set_fact:
+        ip_interna: "{{ ansible_facts['default_ipv4']['address'] }}"
+    
+    - debug:
+        var: ip_interna
+        
+  
+
+     

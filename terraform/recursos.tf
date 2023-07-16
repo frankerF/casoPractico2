@@ -120,3 +120,34 @@ resource "azurerm_linux_virtual_machine" "lvm" {
     }
 }
 
+
+# Definimos un cluster de kubernetes:
+resource "azurerm_kubernetes_cluster" "k8s" {
+    name = var.k8s_name
+    location = azurerm_resource_group.rg.location
+    resource_group_name = azurerm_resource_group.rg.name
+    dns_prefix = "francp2"
+
+    default_node_pool {
+        name = "francp2defnp"
+        node_count = 1
+        vm_size = "Standard_D2_v2"
+    }   
+
+    identity {
+        type = "SystemAssigned"
+    }
+
+    tags = {
+        Environment = "CasoPractico2k8s"
+    }
+}
+
+/*resource "azurerm_role_assignment" "roleas" {
+    principal_id =  azurerm_kubernetes_cluster.k8s.kubelet_identity[0].object_id
+    role_definition_name = "francp2tfrdn"
+    scope = azurerm_container_registry.acr.id
+    skip_service_principal_aad_check = true
+}
+
+*/

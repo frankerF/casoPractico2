@@ -20,26 +20,15 @@
       yum: 
         name: "{{ rpms }}"
         state: latest
-
-    
-    #- name: 'Asegura que el demonio se instancia en el siguiente reinicio'
-    #  ansible.builtin.systemd:
-    #    name: "container-{{ podmanweb.containername }}.service"
-    #    state: stopped  
-
-    #- name: 'para el contenedor si estuviera activo'
-    #  containers.podman.podman_container:
-    #    name: "{{ podmanweb.containername }}"
-    #    image: "{{ podmanweb.image }}"
-    #    state: absent
     
     - name: 'eliminacion de las imágenes locales'
       containers.podman.podman_image:
         name: "{{podmanweb.image}}"          
         state: absent
+        force: true
 
     # Descargar imagen del repositorio
-    - name: 'Login to podman'
+    - name: 'Login al container registry'
       containers.podman.podman_login:
         username: "{{ registryuser }}"
         password: "{{ resgistrypassword }}"

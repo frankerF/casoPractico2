@@ -16,3 +16,18 @@
       kubernetes.core.k8s:
         state: present
         src: "files/k8sDeploy.yaml"
+
+    - name: 'Recoger Info'
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Service
+        namespace: example2
+        wait: yes
+        wait_sleep: 10
+        wait_timeout: 360        
+      register: service_list
+
+    - name: 'Display output'
+      debug:
+        msg: "Podrá acceder a la aplicación de wordpress a partir del siguiente enlace: http://{{ service_list.resources[0].status.loadBalancer.ingress[0].ip }}"
+    

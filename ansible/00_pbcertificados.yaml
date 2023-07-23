@@ -1,7 +1,7 @@
 ---
 - name: 'Generar certificados'
   hosts: localhost
-  vars_files: vars/01_vars.yaml
+  vars_files: vars/varscertificados.yaml
   tasks:
 
     # htpasswd -cBb .cred test D3v0ps.2023

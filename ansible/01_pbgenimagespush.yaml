@@ -1,8 +1,8 @@
 ---
-- name: 'generar imagen contenedor etiquetar y subir'
+- name: 'generar imagen contenedor servicio web etiquetar y subir'
   hosts: localhost  
   vars_files:
-    - vars/00_vars.yaml   
+    - vars/varscontainers.yaml   
   tasks:
     
     - name: 'generar imagen contenedor a partir del containerfile'
@@ -16,6 +16,26 @@
         target_names:
           - "{{podmanweb.image}}"
 
+    - name: 'generar imagen wordpress'
+      containers.podman.podman_image:
+        name: docker.io/wordpress:latest
+    
+    - name: 'etiquetar imagen wordpress'
+      containers.podman.podman_tag:
+        image: docker.io/wordpress:latest
+        target_names:
+          - "{{podmanwp.image}}"
+
+    - name: 'generar imagen mysql'
+      containers.podman.podman_image:
+        name: docker.io/mysql:latest
+    
+    - name: 'etiquetar imagen mysql'
+      containers.podman.podman_tag:
+        image: docker.io/mysql:latest
+        target_names:
+          - "{{podmanmysql.image}}"
+
     # Login para subir imagen al repositorio
     - name: 'Login to podman'
       containers.podman.podman_login:
@@ -27,6 +47,22 @@
     - name: 'push de la imagen tageada'
       containers.podman.podman_image:
         name: webserver
+        tag: casopractico2
+        push: true
+        push_args:
+          dest: "{{ registry }}"
+
+    - name: 'push imagen wordpress'
+      containers.podman.podman_image:
+        name: wordpress
+        tag: casopractico2
+        push: true
+        push_args:
+          dest: "{{ registry }}"
+
+    - name: 'push imagen mysql'          
+      containers.podman.podman_image:
+        name: mysql
         tag: casopractico2
         push: true
         push_args:

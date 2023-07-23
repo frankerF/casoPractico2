@@ -2,5 +2,7 @@ terraform/.terraform/providers/registry.terraform.io/hashicorp/azurerm/3.10.0/li
 terraform/.terraform.lock.hcl
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
+ansible/terraform.tfstate
 ansible/files/.creds
 ansible/files/localhost*
+ansible/files/regpass

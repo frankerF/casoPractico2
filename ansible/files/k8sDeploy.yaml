@@ -1,0 +1,99 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: wp
+  name: wp
+  namespace: example2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wordpress
+  template: 
+    metadata:
+      labels:
+        app: wordpress
+    spec:  
+      nodeSelector: 
+        "kubernetes.io/os": linux
+      volumes:
+        - name: database-pv
+          persistentVolumeClaim:
+            claimName: pvc-managed-db-csi  
+        - name: wordpress-pv
+          persistentVolumeClaim:
+            claimName: pvc-managed-wp-csi                  
+      containers:
+      - name: wordpress
+        env:
+        - name: WORDPRESS_DB_NAME
+          value: wordpress
+        - name: WORDPRESS_DB_USER
+          value: wordpress
+        - name: WORDPRESS_DB_PASSWORD
+          value: wordpresspwd
+        - name: WORDPRESS_DB_HOST
+          value: 127.0.0.1
+        image: francp2tfacr.azurecr.io/wordpress:casopractico2
+        ports:
+        - containerPort: 80  
+        volumeMounts:
+          - mountPath: "/var/www/html"  
+            name: wordpress-pv      
+      - name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: wordpressdorcker
+        - name: MYSQL_DATABASE
+          value: wordpress
+        - name: MYSQL_USER
+          value: wordpress
+        - name: MYSQL_PASSWORD
+          value: wordpresspwd
+        image: francp2tfacr.azurecr.io/mysql:casopractico2
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+          - mountPath: "/var/lib/mysql/"
+            name: database-pv
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wpservice
+  namespace: example2
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: wordpress
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-managed-wp-csi
+  namespace: example2
+spec:
+  storageClassName: managed-csi
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-managed-db-csi
+  namespace: example2
+spec:
+  storageClassName: managed-csi
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    - ReadWriteOnce    

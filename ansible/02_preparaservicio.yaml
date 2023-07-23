@@ -1,10 +1,10 @@
 ---
-- name: 'Primer playbook'
+- name: 'Prepara servicio contenerizado'
   hosts: all
   remote_user: frankerFcp2
   become: true
   vars_files:
-    - vars/00_vars.yaml  
+    - vars/varscontainers.yaml  
   tasks:
     # declara la zona horaria con el valor de la variable zone
     - name: 'Cambio zona horaria'
@@ -21,17 +21,18 @@
         name: "{{ rpms }}"
         state: latest
 
-    - name: 'Asegura que el demonio se instancia en el siguiente reinicio'
-      ansible.builtin.systemd:
-        name: "container-{{ podmanweb.containername }}.service"
-        state: stopped  
+    
+    #- name: 'Asegura que el demonio se instancia en el siguiente reinicio'
+    #  ansible.builtin.systemd:
+    #    name: "container-{{ podmanweb.containername }}.service"
+    #    state: stopped  
 
-    - name: 'para el contenedor si estuviera activo'
-      containers.podman.podman_container:
-        name: "{{ podmanweb.containername }}"
-        image: "{{ podmanweb.image }}"
-        state: absent
-
+    #- name: 'para el contenedor si estuviera activo'
+    #  containers.podman.podman_container:
+    #    name: "{{ podmanweb.containername }}"
+    #    image: "{{ podmanweb.image }}"
+    #    state: absent
+    
     - name: 'eliminacion de las imágenes locales'
       containers.podman.podman_image:
         name: "{{podmanweb.image}}"          

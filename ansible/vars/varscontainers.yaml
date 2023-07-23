@@ -1,0 +1,20 @@
+zone: 'Europe/Madrid'
+rpms: 
+  - podman
+  - httpd-tools
+  - openssl
+mensaje: 'Ejecutado la instalación de podman, httpd-tools, openssl, motd y locale'
+registryuser: francp2tfacr
+resgistrypassword: "{{ lookup('file', 'files/regpass') }}" #ajYLgDChntBcSf/nGDOTZqTzaZ0JQ3bSh78hs4aJtK+ACRBkcwm8
+
+registry: francp2tfacr.azurecr.io
+podmanweb:  
+  image: francp2tfacr.azurecr.io/webserver:casopractico2  
+  containername: webserver
+podmanwp:
+  image: francp2tfacr.azurecr.io/wordpress:casopractico2
+  containername: wordpress
+podmanmysql:
+  image: francp2tfacr.azurecr.io/mysql:casopractico2
+  containername: mysql
+
